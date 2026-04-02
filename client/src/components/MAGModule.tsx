@@ -117,18 +117,27 @@ export const MAGModule: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-bold">Pre-Trade Risk Checks</CardTitle>
+            <CardDescription className="text-[10px]">SEC Rule 15c3-5 automated controls — all active</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 pt-4">
             {[
-              { label: 'Fat-Finger Check', status: 'Active', color: 'bg-green-100 text-green-700' },
-              { label: 'Wash Trade Prevention', status: 'Active', color: 'bg-green-100 text-green-700' },
-              { label: 'Layering Detection', status: 'Active', color: 'bg-green-100 text-green-700' },
-              { label: 'Spoofing Monitoring', status: 'Active', color: 'bg-green-100 text-green-700' },
-              { label: 'Momentum Ignition', status: 'Active', color: 'bg-green-100 text-green-700' },
+              { label: 'Fat-Finger Check', desc: 'Orders >10x avg size blocked', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '14 today' },
+              { label: 'Wash Trade Prevention', desc: 'Cross-account matching', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '0 today' },
+              { label: 'Layering Detection', desc: 'Quote stuffing pattern analysis', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '0 today' },
+              { label: 'Spoofing Monitoring', desc: 'Cancel-to-fill ratio threshold', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '2 today' },
+              { label: 'Momentum Ignition', desc: 'Rapid directional order bursts', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '0 today' },
+              { label: 'Notional Limit Check', desc: 'Per-trader daily notional cap', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '0 today' },
+              { label: 'Duplicate Order Filter', desc: 'Idempotency key validation', status: 'Active', color: 'bg-green-100 text-green-700', triggered: '3 today' },
             ].map((check) => (
               <div key={check.label} className="flex items-center justify-between p-2 rounded-lg border border-border/50 bg-muted/20">
-                <span className="text-xs font-medium">{check.label}</span>
-                <Badge className={`${check.color} border-none text-[10px] h-5`}>{check.status}</Badge>
+                <div>
+                  <span className="text-xs font-medium">{check.label}</span>
+                  <p className="text-[10px] text-muted-foreground">{check.desc}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[9px] text-muted-foreground">{check.triggered}</span>
+                  <Badge className={`${check.color} border-none text-[10px] h-5`}>{check.status}</Badge>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -137,27 +146,79 @@ export const MAGModule: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-bold">MAG Audit Trail</CardTitle>
+            <CardDescription className="text-[10px]">Immutable log of all limit changes and gateway events</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 pt-4">
+          <CardContent className="space-y-2 pt-4">
             {[
-              { id: 1, action: 'Limit Increase: T-104', user: '@roger', time: '10:15 AM', hash: '0x82f...d4e' },
-              { id: 2, action: 'Gateway Sync: NYC-01', user: 'System', time: '09:30 AM', hash: '0x3a2...b1c' },
-              { id: 3, action: 'Rule Update: Wash Trade', user: '@artie', time: '08:45 AM', hash: '0x1e5...f9d' },
-            ].map((log) => (
-              <div key={log.id} className="flex items-center justify-between p-2 rounded-lg border border-border/50 bg-muted/20">
+              { action: 'Limit Increase: T-104 (950k → 1.2M)', user: '@roger', time: '10:15 AM', hash: '0x82f...d4e', badge: 'Limit Change', badgeClass: 'bg-blue-100 text-blue-700' },
+              { action: 'Gateway Sync: NYC-01', user: 'System', time: '09:30 AM', hash: '0x3a2...b1c', badge: 'System', badgeClass: 'bg-slate-100 text-slate-600' },
+              { action: 'Rule Update: Wash Trade Threshold', user: '@artie', time: '08:45 AM', hash: '0x1e5...f9d', badge: 'Rule Update', badgeClass: 'bg-purple-100 text-purple-700' },
+              { action: 'Fat-Finger Block: T-102 (14 orders)', user: 'System', time: '08:20 AM', hash: '0x9c4...a2b', badge: 'Auto-Block', badgeClass: 'bg-red-100 text-red-700' },
+              { action: 'Spoofing Alert: T-103 Pattern Flagged', user: 'System', time: '07:55 AM', hash: '0x4d7...e3c', badge: 'Alert', badgeClass: 'bg-amber-100 text-amber-700' },
+              { action: 'Gateway Added: CHI-02 (CBOE)', user: '@roger', time: '07:30 AM', hash: '0x6f1...b8d', badge: 'Config', badgeClass: 'bg-green-100 text-green-700' },
+              { action: 'Daily Limit Reset: All Traders', user: 'System', time: '07:00 AM', hash: '0x2e8...c5a', badge: 'Reset', badgeClass: 'bg-slate-100 text-slate-600' },
+            ].map((log, i) => (
+              <div key={i} className="flex items-center justify-between p-2 rounded-lg border border-border/50 bg-muted/20">
                 <div className="flex items-center gap-3">
-                  <Fingerprint className="h-4 w-4 text-muted-foreground" />
+                  <Fingerprint className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div>
                     <p className="text-[10px] font-bold">{log.action}</p>
-                    <p className="text-[8px] text-muted-foreground">By {log.user} • {log.time}</p>
+                    <p className="text-[9px] text-muted-foreground">By {log.user} · {log.time} · <span className="font-mono">{log.hash}</span></p>
                   </div>
                 </div>
-                <p className="text-[8px] font-mono text-muted-foreground/60">{log.hash}</p>
+                <Badge className={`${log.badgeClass} border-none text-[10px] h-5 shrink-0 ml-2`}>{log.badge}</Badge>
               </div>
             ))}
           </CardContent>
         </Card>
       </div>
+
+      {/* Gateway Status Table */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-bold">Gateway Status &amp; Connectivity</CardTitle>
+          <CardDescription className="text-[10px]">Real-time status of all trading gateways under SEC Rule 15c3-5</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border/50">
+                  <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Gateway ID</th>
+                  <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Venue</th>
+                  <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Protocol</th>
+                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Latency</th>
+                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Orders Today</th>
+                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Reject Rate</th>
+                  <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/30">
+                {[
+                  { id: 'NYC-01', venue: 'NYSE', protocol: 'FIX 4.4', latency: '0.8ms', orders: '1.2M', rejectRate: '0.12%', status: 'Online', statusClass: 'bg-green-100 text-green-700' },
+                  { id: 'NYC-02', venue: 'NASDAQ', protocol: 'OUCH 4.2', latency: '0.6ms', orders: '1.5M', rejectRate: '0.09%', status: 'Online', statusClass: 'bg-green-100 text-green-700' },
+                  { id: 'CHI-01', venue: 'CBOE', protocol: 'FIX 4.4', latency: '1.1ms', orders: '0.8M', rejectRate: '0.14%', status: 'Online', statusClass: 'bg-green-100 text-green-700' },
+                  { id: 'CHI-02', venue: 'CME', protocol: 'FIX 5.0', latency: '1.3ms', orders: '0.4M', rejectRate: '0.08%', status: 'Online', statusClass: 'bg-green-100 text-green-700' },
+                  { id: 'BOS-01', venue: 'IEX', protocol: 'FIX 4.4', latency: '2.1ms', orders: '0.3M', rejectRate: '0.11%', status: 'Online', statusClass: 'bg-green-100 text-green-700' },
+                  { id: 'NYC-03', venue: 'ARCA', protocol: 'OUCH 4.2', latency: '0.9ms', orders: '0.0M', rejectRate: '—', status: 'Standby', statusClass: 'bg-slate-100 text-slate-600' },
+                ].map((gw, i) => (
+                  <tr key={i} className="hover:bg-muted/20 transition-colors">
+                    <td className="py-2 font-mono font-medium">{gw.id}</td>
+                    <td className="py-2">{gw.venue}</td>
+                    <td className="py-2 font-mono text-muted-foreground">{gw.protocol}</td>
+                    <td className="py-2 text-right font-mono">{gw.latency}</td>
+                    <td className="py-2 text-right font-mono">{gw.orders}</td>
+                    <td className="py-2 text-right font-mono">{gw.rejectRate}</td>
+                    <td className="py-2">
+                      <Badge className={`${gw.statusClass} hover:${gw.statusClass} border-none h-5 text-[10px]`}>{gw.status}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
