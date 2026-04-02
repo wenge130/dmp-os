@@ -187,8 +187,8 @@ export const Dashboard606: React.FC = () => {
                   <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Susquehanna %</th>
                   <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">G1X %</th>
                   <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Avg PFOF/Share</th>
-                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Fill Rate</th>
-                  <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="text-right py-2 pr-6 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Fill Rate</th>
+                  <th className="text-left py-2 pl-4 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/30">
@@ -208,8 +208,8 @@ export const Dashboard606: React.FC = () => {
                     <td className="py-2 text-right font-mono text-pink-600">{row.sus}</td>
                     <td className="py-2 text-right font-mono text-orange-600">{row.g1x}</td>
                     <td className="py-2 text-right font-mono">{row.pfof}</td>
-                    <td className="py-2 text-right font-mono">{row.fill}</td>
-                    <td className="py-2">
+                    <td className="py-2 pr-6 text-right font-mono">{row.fill}</td>
+                    <td className="py-2 pl-4">
                       <Badge className={`${row.statusClass} hover:${row.statusClass} border-none h-5 text-[10px]`}>{row.status}</Badge>
                     </td>
                   </tr>
