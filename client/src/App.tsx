@@ -64,7 +64,7 @@ function App() {
           <Toaster />
           <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden">
             <Sidebar />
-            <main className="flex-1 min-w-0 overflow-hidden relative bg-[#FBFBFB]">
+            <main className="flex-1 min-w-0 overflow-y-auto relative bg-[#FBFBFB]">
               <Router />
             </main>
           </div>
