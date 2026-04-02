@@ -62,7 +62,7 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
-          <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden">
+          <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
             <Sidebar />
             <main className="flex-1 min-w-0 overflow-y-auto relative bg-[#FBFBFB]">
               <Router />
