@@ -198,33 +198,92 @@ export const NetCapitalModule: React.FC = () => {
         </Card>
       </div>
 
+      {/* Capital Breakdown Table */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-bold flex items-center gap-2">
+            <Calculator className="h-4 w-4 text-primary" />
+            Net Capital Breakdown
+          </CardTitle>
+          <CardDescription className="text-[10px]">SEC Rule 15c3-1 computation as of 2026-04-01</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border/50">
+                  <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Component</th>
+                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Amount</th>
+                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Haircut %</th>
+                  <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Allowable</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/30">
+                {[
+                  { component: 'Cash & Cash Equivalents', amount: '$28,400,000', haircut: '0%', allowable: '$28,400,000', type: 'asset' },
+                  { component: 'U.S. Government Securities', amount: '$18,200,000', haircut: '2%', allowable: '$17,836,000', type: 'asset' },
+                  { component: 'Agency Securities', amount: '$6,500,000', haircut: '5%', allowable: '$6,175,000', type: 'asset' },
+                  { component: 'Corporate Bonds (IG)', amount: '$4,100,000', haircut: '15%', allowable: '$3,485,000', type: 'asset' },
+                  { component: 'Receivables (< 30 days)', amount: '$3,200,000', haircut: '0%', allowable: '$3,200,000', type: 'asset' },
+                  { component: 'Receivable from Broker "X" (28d)', amount: '$800,000', haircut: '100%', allowable: '$0', type: 'warning' },
+                  { component: 'Total Allowable Assets', amount: '$61,200,000', haircut: '—', allowable: '$59,096,000', type: 'total' },
+                  { component: 'Total Liabilities', amount: '($16,596,000)', haircut: '—', allowable: '($16,596,000)', type: 'liability' },
+                  { component: 'Net Capital', amount: '—', haircut: '—', allowable: '$42,500,000', type: 'result' },
+                ].map((row, i) => (
+                  <tr key={i} className={`${
+                    row.type === 'total' ? 'bg-muted/30 font-semibold' :
+                    row.type === 'result' ? 'bg-blue-50/50 font-bold text-blue-700' :
+                    row.type === 'warning' ? 'bg-amber-50/50 text-amber-700' :
+                    row.type === 'liability' ? 'text-red-600' : ''
+                  }`}>
+                    <td className="py-2 pr-4">
+                      <div className="flex items-center gap-2">
+                        {row.type === 'warning' && <AlertTriangle className="h-3 w-3 text-amber-500" />}
+                        {row.component}
+                      </div>
+                    </td>
+                    <td className="py-2 text-right font-mono">{row.amount}</td>
+                    <td className="py-2 text-right font-mono">{row.haircut}</td>
+                    <td className="py-2 text-right font-mono">{row.allowable}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Audit & Logs */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-bold">Calculation Audit Trail</CardTitle>
+          <CardDescription className="text-[10px]">Immutable log of all net capital computations and adjustments</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <Fingerprint className="h-4 w-4 text-muted-foreground" />
-                <p className="text-xs font-mono">Daily Net Capital Log: 2026-04-01</p>
+          <div className="space-y-2">
+            {[
+              { label: 'Daily Net Capital Log: 2026-04-01', badge: 'Verified', badgeClass: 'bg-green-100 text-green-700', time: '09:15 AM', hash: '0x4f2...a3c' },
+              { label: 'Haircut Adjustment: U.S. Gov Securities', badge: 'Adjustment', badgeClass: 'bg-blue-100 text-blue-700', time: '08:50 AM', hash: '0x7e1...b9d' },
+              { label: 'Allowable Asset Recalculation', badge: 'Recalculated', badgeClass: 'bg-purple-100 text-purple-700', time: '08:45 AM', hash: '0x2c8...f1e' },
+              { label: 'Indebtedness Ratio Check: 1.25:1', badge: 'Compliant', badgeClass: 'bg-green-100 text-green-700', time: '08:30 AM', hash: '0x9a4...d2f' },
+              { label: 'Broker "X" Receivable Flagged (28d)', badge: 'Alert', badgeClass: 'bg-amber-100 text-amber-700', time: '08:15 AM', hash: '0x3b6...c7a' },
+              { label: 'FOCUS Report Draft Generated', badge: 'Draft', badgeClass: 'bg-slate-100 text-slate-700', time: '07:55 AM', hash: '0x1d5...e8b' },
+              { label: 'Prior Day Carry-Forward: $42.3M', badge: 'Carry-Forward', badgeClass: 'bg-slate-100 text-slate-600', time: '07:00 AM', hash: '0x6f3...a1c' },
+            ].map((entry, i) => (
+              <div key={i} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+                <div className="flex items-center gap-3">
+                  <Fingerprint className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="text-xs font-mono">{entry.label}</p>
+                    <p className="text-[9px] text-muted-foreground/60 font-mono mt-0.5">{entry.hash}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <Badge className={`${entry.badgeClass} hover:${entry.badgeClass} border-none h-5 text-[10px]`}>{entry.badge}</Badge>
+                  <p className="text-[10px] text-muted-foreground w-14 text-right">{entry.time}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none h-5 text-[10px]">Verified</Badge>
-                <p className="text-[10px] text-muted-foreground">09:15 AM</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <Fingerprint className="h-4 w-4 text-muted-foreground" />
-                <p className="text-xs font-mono">Haircut Adjustment: U.S. Gov Securities</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none h-5 text-[10px]">Adjustment</Badge>
-                <p className="text-[10px] text-muted-foreground">08:50 AM</p>
-              </div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
