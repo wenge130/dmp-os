@@ -10,7 +10,7 @@ import {
   BookOpen, Users, BarChart2, ArrowLeft, RefreshCw, Bell,
   CheckSquare, XCircle, Eye, History, Upload, Zap, Tag,
   AlertCircle, FileCheck, UserCheck, Calendar, Hash, Lock,
-  ExternalLink, MessageSquare, Save, MoreHorizontal
+  ExternalLink, MessageSquare, Save, MoreHorizontal, Radio, ChevronUp
 } from "lucide-react";
 import { ChatInput } from "@/components/ChatInput";
 
@@ -50,6 +50,56 @@ interface GapFinding {
   wsp: string;
   action: string;
 }
+
+// ─── FINRA Real-Time Alert Data ─────────────────────────────────────────────
+
+interface FinraAlert {
+  id: string;
+  manualId: string;         // which sub-manual is affected
+  severity: "High" | "Medium" | "Low";
+  rule: string;
+  summary: string;
+  detail: string;
+  source: string;
+  receivedAt: string;
+  affectedSection: string;
+}
+
+const finraAlerts: FinraAlert[] = [
+  {
+    id: "fa1",
+    manualId: "comm",
+    severity: "High",
+    rule: "FINRA Rule 2210 (Regulatory Notice 26-04)",
+    summary: "New digital communications supervision requirements effective June 1, 2026",
+    detail: "FINRA Regulatory Notice 26-04 introduces expanded supervision obligations for AI-generated communications and social media. Firms must update WSPs to include specific review cadence and retention procedures for AI-assisted content by June 1, 2026.",
+    source: "FINRA Rulebook API",
+    receivedAt: "2 min ago",
+    affectedSection: "Section 3.1 — Digital Communications Review",
+  },
+  {
+    id: "fa2",
+    manualId: "rb",
+    severity: "Medium",
+    rule: "SEC Reg BI — Staff Bulletin 2026-01",
+    summary: "SEC staff guidance on product recommendation documentation updated",
+    detail: "SEC Staff Bulletin 2026-01 clarifies documentation requirements for Reg BI product recommendations, specifically requiring firms to retain the rationale for each recommendation in a structured, retrievable format. Current WSP section 5.4 does not meet this standard.",
+    source: "FINRA Notification API",
+    receivedAt: "18 min ago",
+    affectedSection: "Section 5.4 — Product Recommendation Documentation",
+  },
+  {
+    id: "fa3",
+    manualId: "da",
+    severity: "High",
+    rule: "FINRA Rule 3110 — Digital Assets Guidance (Notice 26-07)",
+    summary: "FINRA issues new digital asset suitability supervision guidance",
+    detail: "FINRA Notice 26-07 provides specific guidance on supervisory procedures for digital asset suitability determinations. Firms offering digital assets must establish written procedures addressing risk disclosure, suitability review, and approval workflows by Q3 2026.",
+    source: "FINRA Rulebook API",
+    receivedAt: "1 hr ago",
+    affectedSection: "Section 6.3 — Digital Asset Suitability Review (Missing)",
+  },
+];
 
 // ─── Static Data ─────────────────────────────────────────────────────────────
 
@@ -162,6 +212,13 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"All" | "Current" | "Needs Review" | "Overdue">("All");
 
+  // Map manualId → alerts for quick lookup
+  const alertsByManual = finraAlerts.reduce<Record<string, FinraAlert[]>>((acc, a) => {
+    if (!acc[a.manualId]) acc[a.manualId] = [];
+    acc[a.manualId].push(a);
+    return acc;
+  }, {});
+
   const filtered = subManuals.filter(m =>
     (filter === "All" || m.status === filter) &&
     m.title.toLowerCase().includes(search.toLowerCase())
@@ -194,6 +251,31 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
             <Plus className="h-4 w-4" />
             New Sub-Manual
           </Button>
+        </div>
+      </div>
+
+      {/* FINRA Feed Status Bar */}
+      <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-muted/20">
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <Radio className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-xs font-medium text-foreground">FINRA Regulatory Feed</span>
+          <span className="text-xs text-muted-foreground">· Live · Last sync 2 min ago</span>
+        </div>
+        <div className="flex items-center gap-3 ml-auto text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Rulebook API</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Submission API</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Notification API</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span>Registration API</span>
+          {finraAlerts.length > 0 && (
+            <span className="ml-2 flex items-center gap-1 text-red-600 font-semibold">
+              <AlertTriangle className="h-3 w-3" />
+              {finraAlerts.length} new alert{finraAlerts.length > 1 ? "s" : ""} require WSP updates
+            </span>
+          )}
         </div>
       </div>
 
@@ -265,12 +347,32 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {filtered.map(m => (
+            {filtered.map(m => {
+              const alerts = alertsByManual[m.id] || [];
+              const highAlert = alerts.find(a => a.severity === "High");
+              const topAlert = highAlert || alerts[0];
+              return (
               <tr key={m.id} className="hover:bg-muted/20 transition-colors group">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="font-medium text-foreground">{m.title}</span>
+                    <div className="relative shrink-0">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      {alerts.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">{m.title}</span>
+                      {topAlert && (
+                        <p className="text-[10px] text-red-600 mt-0.5 flex items-center gap-1">
+                          <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                          {topAlert.rule} · {topAlert.receivedAt}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{m.sections}</td>
@@ -299,7 +401,8 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
                   </div>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>
@@ -329,6 +432,11 @@ function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => v
   const [showHistory, setShowHistory] = useState(false);
   const [query, setQuery] = useState("");
   const [saving, setSaving] = useState(false);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+
+  const activeAlerts = finraAlerts.filter(
+    a => a.manualId === manualId && !dismissedAlerts.includes(a.id)
+  );
 
   const sections = [
     { id: "1", title: "Purpose and Scope", subsections: ["1.1 Purpose", "1.2 Scope of Application", "1.3 Regulatory Basis"] },
@@ -386,6 +494,47 @@ function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => v
 
       {/* Center Panel: Rich Text Editor */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* FINRA Change Notification Banner */}
+        {activeAlerts.length > 0 && (
+          <div className="border-b border-red-200 bg-red-50/80 shrink-0">
+            {activeAlerts.map(alert => (
+              <div key={alert.id} className="px-4 py-3 flex items-start gap-3">
+                <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-red-700">{alert.rule}</span>
+                    <StatusBadge status={alert.severity} />
+                    <span className="text-[10px] text-red-500">via {alert.source} · {alert.receivedAt}</span>
+                  </div>
+                  <p className="text-xs text-red-700 mt-0.5 font-medium">{alert.summary}</p>
+                  <p className="text-xs text-red-600/80 mt-1 leading-relaxed">{alert.detail}</p>
+                  <p className="text-[10px] text-red-500 mt-1 font-medium">Affected: {alert.affectedSection}</p>
+                  <div className="flex gap-2 mt-2">
+                    <button className="px-2.5 py-1 bg-red-600 text-white rounded text-[10px] font-semibold hover:bg-red-700 transition-colors flex items-center gap-1">
+                      <Edit2 className="h-2.5 w-2.5" /> Update WSP Now
+                    </button>
+                    <button className="px-2.5 py-1 bg-white border border-red-200 text-red-600 rounded text-[10px] font-medium hover:bg-red-50 transition-colors flex items-center gap-1">
+                      <ExternalLink className="h-2.5 w-2.5" /> View Full Rule
+                    </button>
+                    <button
+                      onClick={() => setDismissedAlerts(d => [...d, alert.id])}
+                      className="px-2.5 py-1 text-[10px] text-red-400 hover:text-red-600 transition-colors ml-auto flex items-center gap-1"
+                    >
+                      <XCircle className="h-3 w-3" /> Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Editor Toolbar */}
         <div className="h-14 border-b border-border flex items-center px-4 gap-2 shrink-0">
           <div className="flex gap-1 border-r border-border pr-3 mr-1">
