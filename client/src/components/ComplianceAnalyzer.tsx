@@ -157,7 +157,7 @@ export default function ComplianceAnalyzer() {
                       <FileText className="h-6 w-6 text-muted-foreground" />
                     </div>
                     {doc.status === "critical" && (
-                      <Badge className="bg-red-500/10 text-red-600 border-red-200 text-[10px] uppercase">Critical Gap</Badge>
+                      <Badge className="bg-orange-500/10 text-orange-600 border-orange-200 text-[10px] uppercase">Critical Gap</Badge>
                     )}
                     {doc.status === "warning" && (
                       <Badge className="bg-amber-500/10 text-amber-600 border-amber-200 text-[10px] uppercase">Review Needed</Badge>
@@ -250,18 +250,18 @@ function AnalysisView({ onBack, onShowWorkflow }: { onBack: () => void, onShowWo
                 className={cn(
                   "relative p-4 rounded-lg transition-all duration-200 cursor-pointer",
                   p.type === "header" ? "text-xl font-bold border-b border-border pb-4" : "text-sm leading-relaxed text-slate-700",
-                  p.hasIssue && "bg-red-50/50 border border-red-100",
+                  p.hasIssue && "bg-orange-50/50 border border-orange-100",
                   selectedPara === p.id && "ring-2 ring-primary ring-offset-2 bg-muted/30"
                 )}
                 onClick={() => setSelectedPara(p.id)}
               >
                 {p.hasIssue && (
-                  <div className="absolute -left-2 top-4 w-1 h-12 bg-red-500 rounded-full" />
+                  <div className="absolute -left-2 top-4 w-1 h-12 bg-orange-500 rounded-full" aria-hidden="true" />
                 )}
                 {p.text}
                 {p.hasIssue && (
                   <div className="absolute top-4 right-4">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <AlertCircle className="h-4 w-4 text-orange-500" aria-label="Issue detected" />
                   </div>
                 )}
               </div>
@@ -282,7 +282,7 @@ function AnalysisView({ onBack, onShowWorkflow }: { onBack: () => void, onShowWo
             {selectedPara && paragraphs.find(p => p.id === selectedPara)?.hasIssue ? (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
                 <div className="space-y-2">
-                  <Badge className="bg-red-500 text-white border-none text-[10px] uppercase">Critical Gap</Badge>
+                  <Badge className="bg-orange-500 text-white border-none text-[10px] uppercase">Critical Gap</Badge>
                   <h3 className="text-sm font-bold">Inadequate Supervisory Procedures</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     This paragraph lacks the specific, measurable criteria required by **FINRA Rule 3110**. It states intent but does not define *how* supervision is conducted or *who* is responsible.

@@ -179,21 +179,23 @@ const versionHistory = [
 // ─── Status Badge Component ───────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
+  // Color-blind accessible: uses blue for ok/success, amber for warnings,
+  // orange for critical/overdue — never relies on red-vs-green alone.
   const styles: Record<string, string> = {
-    "Current": "bg-green-100 text-green-700 border-green-200",
-    "Needs Review": "bg-yellow-100 text-yellow-700 border-yellow-200",
-    "Overdue": "bg-red-100 text-red-700 border-red-200",
-    "Completed": "bg-green-100 text-green-700 border-green-200",
-    "Pending": "bg-blue-100 text-blue-700 border-blue-200",
-    "High": "bg-red-100 text-red-700 border-red-200",
-    "Medium": "bg-yellow-100 text-yellow-700 border-yellow-200",
-    "Low": "bg-gray-100 text-gray-600 border-gray-200",
-    "Missing": "bg-red-100 text-red-700 border-red-200",
-    "Outdated": "bg-orange-100 text-orange-700 border-orange-200",
-    "Reg BI": "bg-purple-100 text-purple-700 border-purple-200",
+    "Current":    "bg-blue-100 text-blue-700 border-blue-200",
+    "Needs Review": "bg-amber-100 text-amber-700 border-amber-200",
+    "Overdue":    "bg-orange-100 text-orange-700 border-orange-200",
+    "Completed":  "bg-blue-100 text-blue-700 border-blue-200",
+    "Pending":    "bg-sky-100 text-sky-700 border-sky-200",
+    "High":       "bg-orange-100 text-orange-700 border-orange-200",
+    "Medium":     "bg-amber-100 text-amber-700 border-amber-200",
+    "Low":        "bg-gray-100 text-gray-600 border-gray-200",
+    "Missing":    "bg-orange-100 text-orange-700 border-orange-200",
+    "Outdated":   "bg-amber-100 text-amber-700 border-amber-200",
+    "Reg BI":     "bg-purple-100 text-purple-700 border-purple-200",
     "Recommended": "bg-blue-100 text-blue-700 border-blue-200",
-    "Draft": "bg-gray-100 text-gray-600 border-gray-200",
-    "Approved": "bg-green-100 text-green-700 border-green-200",
+    "Draft":      "bg-gray-100 text-gray-600 border-gray-200",
+    "Approved":   "bg-blue-100 text-blue-700 border-blue-200",
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${styles[status] || "bg-gray-100 text-gray-600 border-gray-200"}`}>
@@ -258,20 +260,20 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
       <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-muted/20">
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
           </span>
           <Radio className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs font-medium text-foreground">FINRA Regulatory Feed</span>
           <span className="text-xs text-muted-foreground">· Live · Last sync 2 min ago</span>
         </div>
         <div className="flex items-center gap-3 ml-auto text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Rulebook API</span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Submission API</span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Notification API</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-label="Online"></span>Rulebook API</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-label="Online"></span>Submission API</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-label="Online"></span>Notification API</span>
           <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span>Registration API</span>
           {finraAlerts.length > 0 && (
-            <span className="ml-2 flex items-center gap-1 text-red-600 font-semibold">
+            <span className="ml-2 flex items-center gap-1 text-orange-600 font-semibold" role="alert">
               <AlertTriangle className="h-3 w-3" />
               {finraAlerts.length} new alert{finraAlerts.length > 1 ? "s" : ""} require WSP updates
             </span>
@@ -284,12 +286,12 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
         <div className="rounded-lg border bg-card p-4">
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">WSP Sections</p>
           <p className="text-2xl font-bold mt-1">{completedSections}<span className="text-sm font-normal text-muted-foreground">/{totalSections}</span></p>
-          <p className="text-xs text-green-600 mt-1 font-medium">Current or approved</p>
+          <p className="text-xs text-blue-600 mt-1 font-medium">Current or approved</p>
         </div>
-        <div className="rounded-lg border bg-red-50/50 border-red-100 p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">Overdue</p>
-          <p className="text-2xl font-bold mt-1 text-red-600">{overdueCount}</p>
-          <p className="text-xs text-red-500 mt-1 font-medium">Sub-manuals past review date</p>
+        <div className="rounded-lg border bg-orange-50/50 border-orange-100 p-4">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600">Overdue</p>
+          <p className="text-2xl font-bold mt-1 text-orange-700">{overdueCount}</p>
+          <p className="text-xs text-orange-600 mt-1 font-medium">Sub-manuals past review date</p>
         </div>
         <div className="rounded-lg border bg-yellow-50/50 border-yellow-100 p-4">
           <p className="text-[10px] font-bold uppercase tracking-wider text-yellow-600">Needs Review</p>
@@ -359,15 +361,15 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
                       <FileText className="h-4 w-4 text-muted-foreground" />
                       {alerts.length > 0 && (
                         <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
                         </span>
                       )}
                     </div>
                     <div>
                       <span className="font-medium text-foreground">{m.title}</span>
                       {topAlert && (
-                        <p className="text-[10px] text-red-600 mt-0.5 flex items-center gap-1">
+                        <p className="text-[10px] text-orange-600 mt-0.5 flex items-center gap-1">
                           <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
                           {topAlert.rule} · {topAlert.receivedAt}
                         </p>
@@ -496,35 +498,35 @@ function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => v
       <div className="flex-1 flex flex-col min-w-0">
         {/* FINRA Change Notification Banner */}
         {activeAlerts.length > 0 && (
-          <div className="border-b border-red-200 bg-red-50/80 shrink-0">
+          <div className="border-b border-orange-200 bg-orange-50/80 shrink-0" role="alert" aria-label="FINRA regulatory alerts">
             {activeAlerts.map(alert => (
               <div key={alert.id} className="px-4 py-3 flex items-start gap-3">
                 <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                   </span>
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-red-700">{alert.rule}</span>
+                    <span className="text-xs font-semibold text-orange-700">{alert.rule}</span>
                     <StatusBadge status={alert.severity} />
-                    <span className="text-[10px] text-red-500">via {alert.source} · {alert.receivedAt}</span>
+                    <span className="text-[10px] text-orange-500">via {alert.source} · {alert.receivedAt}</span>
                   </div>
-                  <p className="text-xs text-red-700 mt-0.5 font-medium">{alert.summary}</p>
-                  <p className="text-xs text-red-600/80 mt-1 leading-relaxed">{alert.detail}</p>
-                  <p className="text-[10px] text-red-500 mt-1 font-medium">Affected: {alert.affectedSection}</p>
+                  <p className="text-xs text-orange-700 mt-0.5 font-medium">{alert.summary}</p>
+                  <p className="text-xs text-orange-600/80 mt-1 leading-relaxed">{alert.detail}</p>
+                  <p className="text-[10px] text-orange-500 mt-1 font-medium">Affected: {alert.affectedSection}</p>
                   <div className="flex gap-2 mt-2">
-                    <button className="px-2.5 py-1 bg-red-600 text-white rounded text-[10px] font-semibold hover:bg-red-700 transition-colors flex items-center gap-1">
+                    <button className="px-2.5 py-1 bg-orange-600 text-white rounded text-[10px] font-semibold hover:bg-orange-700 transition-colors flex items-center gap-1">
                       <Edit2 className="h-2.5 w-2.5" /> Update WSP Now
                     </button>
-                    <button className="px-2.5 py-1 bg-white border border-red-200 text-red-600 rounded text-[10px] font-medium hover:bg-red-50 transition-colors flex items-center gap-1">
+                    <button className="px-2.5 py-1 bg-white border border-orange-200 text-orange-600 rounded text-[10px] font-medium hover:bg-orange-50 transition-colors flex items-center gap-1">
                       <ExternalLink className="h-2.5 w-2.5" /> View Full Rule
                     </button>
                     <button
                       onClick={() => setDismissedAlerts(d => [...d, alert.id])}
-                      className="px-2.5 py-1 text-[10px] text-red-400 hover:text-red-600 transition-colors ml-auto flex items-center gap-1"
+                      className="px-2.5 py-1 text-[10px] text-orange-400 hover:text-orange-600 transition-colors ml-auto flex items-center gap-1"
                     >
                       <XCircle className="h-3 w-3" /> Dismiss
                     </button>
