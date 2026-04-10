@@ -79,6 +79,22 @@
   --sidebar-ring: #000000;
   --warning: #f59e0b; 
   --warning-foreground: #ffffff;
+  /* Accessibility: Color-blind safe semantic tokens */
+  /* Use blue for "success/ok" — distinguishable by all color-blind types */
+  --status-ok: #2563eb;
+  --status-ok-bg: #eff6ff;
+  --status-ok-border: #bfdbfe;
+  --status-ok-foreground: #1d4ed8;
+  /* Use amber/orange for "error/critical" — distinguishable from blue */
+  --status-alert: #d97706;
+  --status-alert-bg: #fffbeb;
+  --status-alert-border: #fde68a;
+  --status-alert-foreground: #b45309;
+  /* Use high-contrast orange-red for destructive — paired with icons */
+  --status-critical: #c2410c;
+  --status-critical-bg: #fff7ed;
+  --status-critical-border: #fed7aa;
+  --status-critical-foreground: #9a3412;
 }
 
 .dark {
@@ -117,6 +133,19 @@
   --sidebar-ring: #ffffff;
   --warning: #b45309;
   --warning-foreground: #fafafa;
+  /* Accessibility: Color-blind safe semantic tokens — dark mode */
+  --status-ok: #60a5fa;
+  --status-ok-bg: #1e3a5f;
+  --status-ok-border: #1e40af;
+  --status-ok-foreground: #93c5fd;
+  --status-alert: #fbbf24;
+  --status-alert-bg: #3d2e0a;
+  --status-alert-border: #92400e;
+  --status-alert-foreground: #fcd34d;
+  --status-critical: #fb923c;
+  --status-critical-bg: #3d1a0a;
+  --status-critical-border: #9a3412;
+  --status-critical-foreground: #fdba74;
 }
 
 @layer base {

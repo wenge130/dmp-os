@@ -63,13 +63,13 @@ export const ArchiveRecords: React.FC = () => {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-green-50/50 border-green-100">
+        <Card className="bg-blue-50/50 border-blue-100">
           <CardHeader className="pb-2">
-            <CardTitle className="text-[10px] font-bold text-green-600 uppercase tracking-wider">Integrity Checks</CardTitle>
+            <CardTitle className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Integrity Checks</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">100%</div>
-            <p className="text-[10px] text-green-500 flex items-center mt-1 font-medium">
+            <p className="text-[10px] text-blue-600 flex items-center mt-1 font-medium">
               <CheckCircle2 className="h-3 w-3 mr-1" /> All Hashes Verified
             </p>
           </CardContent>

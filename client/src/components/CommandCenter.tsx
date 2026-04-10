@@ -22,8 +22,8 @@ export default function CommandCenter() {
           <h1 className="text-2xl font-bold tracking-tight">Command Center</h1>
           <p className="text-muted-foreground">Master Dashboard for Brokerage Operations</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-600 rounded-full text-xs font-medium border border-green-500/20">
-          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+        <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 text-blue-600 rounded-full text-xs font-medium border border-blue-500/20" aria-label="System status: Operational">
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
           System Operational
         </div>
       </div>
@@ -149,7 +149,7 @@ function StatusCard({ title, icon: Icon, status, value, trend, color }: any) {
             <span className="text-[10px] font-medium text-muted-foreground">{trend}</span>
           </div>
           <p className="text-xs font-medium flex items-center gap-1.5 pt-1">
-            <span className={`w-1.5 h-1.5 rounded-full ${color === 'orange' ? 'bg-orange-500' : 'bg-green-500'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${color === 'orange' ? 'bg-orange-500' : 'bg-blue-500'}`} aria-hidden="true" />
             {status}
           </p>
         </div>

@@ -127,7 +127,7 @@ export default function SupervisoryWorkflows() {
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Investigation Actions</h3>
               <div className="space-y-1">
                 <ActionItem icon={AlertCircle} label="Request Trader Explanation" color="text-yellow-500" />
-                <ActionItem icon={CheckCircle} label="Mark as False Positive" color="text-green-500" />
+                <ActionItem icon={CheckCircle} label="Mark as False Positive" color="text-blue-500" />
                 <ActionItem icon={Edit2} label="Draft Exception Report" color="text-blue-500" />
               </div>
             </div>

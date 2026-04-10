@@ -102,15 +102,15 @@ export default function Dashboard() {
                           
                           {/* Inline Cascade Preview */}
                           <div className="space-y-2 pl-3 border-l-2 border-primary/20">
-                            <div className="flex items-center justify-between text-[11px] py-1 px-2 rounded-md bg-green-50/30">
+                            <div className="flex items-center justify-between text-[11px] py-1 px-2 rounded-md bg-blue-50/30">
                               <div className="flex items-center gap-2">
-                                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
                                 <span>Trade Execution Data Verified</span>
                               </div>
                             </div>
-                            <div className="flex items-center justify-between text-[11px] py-1 px-2 rounded-md bg-green-50/30">
+                            <div className="flex items-center justify-between text-[11px] py-1 px-2 rounded-md bg-blue-50/30">
                               <div className="flex items-center gap-2">
-                                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
                                 <span>AML/KYC Check Cleared</span>
                               </div>
                             </div>
@@ -152,11 +152,11 @@ export default function Dashboard() {
       <div className="h-8 border-t border-border/50 flex items-center justify-between px-6 shrink-0 bg-card/30">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" aria-label="Connected" />
             Connected to FINRA API
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" aria-label="Active" />
             SEC EDGAR Sync Active
           </div>
         </div>

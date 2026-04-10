@@ -92,11 +92,11 @@ export const CATReportingModule: React.FC = () => {
 
           <div className="grid grid-cols-1 gap-4">
             {mockRejections.map((rej) => (
-              <Card key={rej.id} className={`transition-all ${repaired.includes(rej.id) ? 'opacity-60 bg-muted/30 border-green-100' : 'border-red-100'}`}>
+              <Card key={rej.id} className={`transition-all ${repaired.includes(rej.id) ? 'opacity-60 bg-muted/30 border-blue-100' : 'border-orange-100'}`}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-6">
-                    <div className={`p-2 rounded-full ${repaired.includes(rej.id) ? 'bg-green-100' : 'bg-red-100'}`}>
-                      {repaired.includes(rej.id) ? <CheckCircle2 className="h-5 w-5 text-green-600" /> : <AlertCircle className="h-5 w-5 text-red-600" />}
+                    <div className={`p-2 rounded-full ${repaired.includes(rej.id) ? 'bg-blue-100' : 'bg-orange-100'}`}>
+                      {repaired.includes(rej.id) ? <CheckCircle2 className="h-5 w-5 text-blue-600" /> : <AlertCircle className="h-5 w-5 text-orange-600" />}
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase">Firm ROEID</p>
@@ -104,11 +104,11 @@ export const CATReportingModule: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase">Event Type</p>
-                      <Badge variant="outline" className={`text-[10px] py-0 ${rej.type === 'ENO' ? 'text-red-600 border-red-200' : ''}`}>{rej.type}</Badge>
+                      <Badge variant="outline" className={`text-[10px] py-0 ${rej.type === 'ENO' ? 'text-orange-600 border-orange-200' : ''}`}>{rej.type}</Badge>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase">Error Message</p>
-                      <p className="text-xs text-red-600 font-medium">{repaired.includes(rej.id) ? 'Resolved' : rej.error}</p>
+                      <p className={`text-xs font-medium ${repaired.includes(rej.id) ? 'text-blue-600' : 'text-orange-600'}`}>{repaired.includes(rej.id) ? 'Resolved' : rej.error}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase">Symbol</p>
@@ -118,7 +118,7 @@ export const CATReportingModule: React.FC = () => {
                   
                   <div className="flex gap-2">
                     {repaired.includes(rej.id) ? (
-                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none">
+                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none">
                         Repaired & Re-submitted
                       </Badge>
                     ) : (
@@ -141,7 +141,7 @@ export const CATReportingModule: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <Terminal className="h-4 w-4 text-primary" />
                         <p className="text-[10px] font-mono">
-                          <span className="text-blue-500">DMP AI:</span> Changing <span className="text-red-500">"type": "ENO"</span> to <span className="text-green-500">"type": "MENO"</span>...
+                          <span className="text-blue-500">DMP AI:</span> Changing <span className="text-orange-500">"type": "ENO"</span> to <span className="text-blue-500">"type": "MENO"</span>...
                         </p>
                       </div>
                       <Badge variant="outline" className="text-[8px] animate-pulse">Processing Repair</Badge>

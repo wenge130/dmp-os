@@ -113,7 +113,7 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
           <div className="flex flex-wrap gap-2 px-4 pt-4 pb-2">
             {selectedSources.map(source => (
               <div key={source.id} className="flex items-center gap-1.5 px-2 py-1 bg-background border border-border rounded-md text-xs font-medium text-foreground shadow-sm">
-                {source.type === 'file' ? <FileText className="w-3 h-3 text-red-500" /> : source.type === 'web' ? <Globe className="w-3 h-3 text-blue-500" /> : <Database className="w-3 h-3 text-green-500" />}
+                {source.type === 'file' ? <FileText className="w-3 h-3 text-orange-500" /> : source.type === 'web' ? <Globe className="w-3 h-3 text-blue-500" /> : <Database className="w-3 h-3 text-blue-500" />}
                 {source.label}
                 <button onClick={() => removeSource(source.id)} className="ml-1 text-muted-foreground hover:text-foreground">
                   <X className="w-3 h-3" />

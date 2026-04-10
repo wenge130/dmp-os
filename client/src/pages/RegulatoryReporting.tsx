@@ -118,7 +118,7 @@ export default function RegulatoryReporting() {
             <div>
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Workflow Actions</h3>
               <div className="space-y-1">
-                <ActionItem icon={CheckCircle} label="Send to Legal for Review" color="text-green-500" />
+                <ActionItem icon={CheckCircle} label="Send to Legal for Review" color="text-blue-500" />
                 <ActionItem icon={BarChart} label="Attach OATS Data Extract" color="text-blue-500" />
               </div>
             </div>
