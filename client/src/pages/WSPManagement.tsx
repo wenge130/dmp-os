@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { wspApi, finraApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -206,30 +207,36 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── View 1: WSP Library Dashboard ───────────────────────────────────────────
 
-function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: {
+function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis, liveManuals, liveAlerts, backendOnline }: {
   onOpenEditor: (id: string) => void;
   onOpenAttestation: () => void;
   onOpenGapAnalysis: () => void;
+  liveManuals?: SubManual[];
+  liveAlerts?: FinraAlert[];
+  backendOnline?: boolean | null;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"All" | "Current" | "Needs Review" | "Overdue">("All");
 
+  const displayManuals = liveManuals && liveManuals.length > 0 ? liveManuals : subManuals;
+  const displayAlerts = liveAlerts && liveAlerts.length > 0 ? liveAlerts : finraAlerts;
+
   // Map manualId → alerts for quick lookup
-  const alertsByManual = finraAlerts.reduce<Record<string, FinraAlert[]>>((acc, a) => {
+  const alertsByManual = displayAlerts.reduce<Record<string, FinraAlert[]>>((acc, a) => {
     if (!acc[a.manualId]) acc[a.manualId] = [];
     acc[a.manualId].push(a);
     return acc;
   }, {});
 
-  const filtered = subManuals.filter(m =>
+  const filtered = displayManuals.filter(m =>
     (filter === "All" || m.status === filter) &&
     m.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalSections = subManuals.reduce((s, m) => s + m.sections, 0);
-  const completedSections = subManuals.reduce((s, m) => s + Math.round(m.sections * m.completion / 100), 0);
-  const overdueCount = subManuals.filter(m => m.status === "Overdue").length;
-  const needsReviewCount = subManuals.filter(m => m.status === "Needs Review").length;
+  const totalSections = displayManuals.reduce((s, m) => s + m.sections, 0);
+  const completedSections = displayManuals.reduce((s, m) => s + Math.round(m.sections * m.completion / 100), 0);
+  const overdueCount = displayManuals.filter(m => m.status === "Overdue").length;
+  const needsReviewCount = displayManuals.filter(m => m.status === "Needs Review").length;
   const pendingAttestations = attestations.filter(a => a.status !== "Completed").length;
 
   return (
@@ -268,14 +275,23 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis }: 
           <span className="text-xs text-muted-foreground">· Live · Last sync 2 min ago</span>
         </div>
         <div className="flex items-center gap-3 ml-auto text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-label="Online"></span>Rulebook API</span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-label="Online"></span>Submission API</span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-label="Online"></span>Notification API</span>
+          <span className="flex items-center gap-1">
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${backendOnline === true ? 'bg-blue-500' : backendOnline === false ? 'bg-gray-400' : 'bg-amber-400'}`} aria-label={backendOnline === true ? 'Online' : 'Connecting'}></span>
+            Rulebook API
+          </span>
+          <span className="flex items-center gap-1">
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${backendOnline === true ? 'bg-blue-500' : 'bg-gray-400'}`} aria-label="Online"></span>
+            Notification API
+          </span>
+          <span className="flex items-center gap-1">
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${backendOnline === true ? 'bg-blue-500' : 'bg-gray-400'}`} aria-label="Online"></span>
+            Backend API
+          </span>
           <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span>Registration API</span>
-          {finraAlerts.length > 0 && (
+          {displayAlerts.length > 0 && (
             <span className="ml-2 flex items-center gap-1 text-orange-600 font-semibold" role="alert">
               <AlertTriangle className="h-3 w-3" />
-              {finraAlerts.length} new alert{finraAlerts.length > 1 ? "s" : ""} require WSP updates
+              {displayAlerts.length} new alert{displayAlerts.length > 1 ? "s" : ""} require WSP updates
             </span>
           )}
         </div>
@@ -739,14 +755,15 @@ function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => v
 
 // ─── View 3: Attestation Center ───────────────────────────────────────────────
 
-function AttestationCenterView({ onBack }: { onBack: () => void }) {
+function AttestationCenterView({ onBack, liveAttestations }: { onBack: () => void; liveAttestations?: AttestationRow[] }) {
   const [filter, setFilter] = useState<"All" | "Pending" | "Overdue" | "Completed">("All");
 
-  const filtered = attestations.filter(a => filter === "All" || a.status === filter);
-  const completed = attestations.filter(a => a.status === "Completed").length;
-  const pending = attestations.filter(a => a.status === "Pending").length;
-  const overdue = attestations.filter(a => a.status === "Overdue").length;
-  const total = attestations.length;
+  const data = liveAttestations && liveAttestations.length > 0 ? liveAttestations : attestations;
+  const filtered = data.filter(a => filter === "All" || a.status === filter);
+  const completed = data.filter(a => a.status === "Completed").length;
+  const pending = data.filter(a => a.status === "Pending").length;
+  const overdue = data.filter(a => a.status === "Overdue").length;
+  const total = data.length;
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -906,20 +923,37 @@ function AttestationCenterView({ onBack }: { onBack: () => void }) {
 
 // ─── View 4: Gap Analysis Report ─────────────────────────────────────────────
 
-function GapAnalysisView({ onBack }: { onBack: () => void }) {
+function GapAnalysisView({ onBack, liveGaps, onRefresh }: { onBack: () => void; liveGaps?: GapFinding[]; onRefresh?: () => void }) {
   const [running, setRunning] = useState(false);
   const [ran, setRan] = useState(true);
   const [filter, setFilter] = useState<"All" | "Missing" | "Outdated" | "Reg BI" | "Recommended">("All");
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
-  const handleRun = () => {
+  const data = liveGaps && liveGaps.length > 0 ? liveGaps : gapFindings;
+
+  const handleRun = async () => {
     setRunning(true);
-    setTimeout(() => { setRunning(false); setRan(true); }, 2500);
+    setAnalysisError(null);
+    try {
+      // Run gap analysis for all WSPs against key rules
+      await Promise.all([
+        wspApi.runGapAnalysis('wsp-001', '3110'),
+        wspApi.runGapAnalysis('wsp-002', '2111'),
+        wspApi.runGapAnalysis('wsp-003', '3310'),
+      ]);
+      if (onRefresh) await onRefresh();
+      setRan(true);
+    } catch (err: any) {
+      setAnalysisError(err.message ?? 'Analysis failed');
+    } finally {
+      setRunning(false);
+    }
   };
 
-  const filtered = gapFindings.filter(g => filter === "All" || g.category === filter);
-  const high = gapFindings.filter(g => g.severity === "High").length;
-  const medium = gapFindings.filter(g => g.severity === "Medium").length;
-  const low = gapFindings.filter(g => g.severity === "Low").length;
+  const filtered = data.filter(g => filter === "All" || g.category === filter);
+  const high = data.filter(g => g.severity === "High").length;
+  const medium = data.filter(g => g.severity === "Medium").length;
+  const low = data.filter(g => g.severity === "Low").length;
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -940,6 +974,14 @@ function GapAnalysisView({ onBack }: { onBack: () => void }) {
           {running ? "Analyzing..." : "Re-run Analysis"}
         </Button>
       </div>
+
+      {/* Error Banner */}
+      {analysisError && (
+        <div className="rounded-lg border border-orange-200 bg-orange-50 p-3 flex items-center gap-2 text-orange-700 text-sm">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>Analysis error: {analysisError}</span>
+        </div>
+      )}
 
       {/* Analysis Meta */}
       {ran && (
@@ -1033,19 +1075,82 @@ export default function WSPManagement() {
   const [view, setView] = useState<View>("library");
   const [editorManualId, setEditorManualId] = useState<string>("gs");
 
+  // ── Live data from backend ──
+  const [liveManuals, setLiveManuals] = useState<any[]>([]);
+  const [liveAlerts, setLiveAlerts] = useState<any[]>([]);
+  const [liveAttestations, setLiveAttestations] = useState<any[]>([]);
+  const [liveGaps, setLiveGaps] = useState<any[]>([]);
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
+  const fetchAll = useCallback(async () => {
+    try {
+      const [manuals, alerts, attestations, gaps] = await Promise.all([
+        wspApi.getManuals(),
+        wspApi.getAlerts(),
+        wspApi.getAttestations(),
+        wspApi.getGaps(),
+      ]);
+      setLiveManuals(manuals);
+      setLiveAlerts(alerts);
+      setLiveAttestations(attestations);
+      setLiveGaps(gaps);
+      setBackendOnline(true);
+    } catch {
+      setBackendOnline(false);
+      // Fall back to static mock data silently
+    }
+  }, []);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
+
   const openEditor = (id: string) => {
     setEditorManualId(id);
     setView("editor");
   };
 
+  // Merge live data with static fallbacks
+  const displayManuals = liveManuals.length > 0
+    ? liveManuals.map(m => ({
+        id: m.id, title: m.title, sections: m.sections, completion: m.completion,
+        lastUpdated: m.last_updated, supervisor: m.supervisor,
+        status: (m.status === 'Under Review' ? 'Needs Review' : m.status === 'Needs Update' ? 'Overdue' : m.status) as SubManual['status'],
+        version: m.version,
+      }))
+    : subManuals;
+
+  const displayAlerts = liveAlerts.length > 0
+    ? liveAlerts.map(a => ({
+        id: a.id, manualId: a.manual_id ?? '', severity: a.severity,
+        rule: a.rule, summary: a.summary, detail: a.detail, source: a.source,
+        receivedAt: new Date(a.received_at).toLocaleString(),
+        affectedSection: a.affected_section ?? '',
+      }))
+    : finraAlerts;
+
+  const displayAttestations = liveAttestations.length > 0
+    ? liveAttestations.map(a => ({
+        id: a.id, wsp: a.wsp_id, assignee: a.assignee, role: a.role,
+        dueDate: a.due_date, status: a.status, version: a.version,
+        completedDate: a.completed_date,
+      }))
+    : attestations;
+
+  const displayGaps = liveGaps.length > 0
+    ? liveGaps.map(g => ({
+        id: g.id, category: g.category as GapFinding['category'],
+        severity: g.severity, title: g.title, description: g.description,
+        rule: g.rule_reference, wsp: g.wsp_id, action: g.action_required,
+      }))
+    : gapFindings;
+
   if (view === "editor") {
     return <WSPEditorView manualId={editorManualId} onBack={() => setView("library")} />;
   }
   if (view === "attestation") {
-    return <AttestationCenterView onBack={() => setView("library")} />;
+    return <AttestationCenterView onBack={() => setView("library")} liveAttestations={displayAttestations} />;
   }
   if (view === "gap-analysis") {
-    return <GapAnalysisView onBack={() => setView("library")} />;
+    return <GapAnalysisView onBack={() => setView("library")} liveGaps={displayGaps} onRefresh={fetchAll} />;
   }
 
   return (
@@ -1053,6 +1158,9 @@ export default function WSPManagement() {
       onOpenEditor={openEditor}
       onOpenAttestation={() => setView("attestation")}
       onOpenGapAnalysis={() => setView("gap-analysis")}
+      liveManuals={displayManuals}
+      liveAlerts={displayAlerts}
+      backendOnline={backendOnline}
     />
   );
 }
