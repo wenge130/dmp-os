@@ -1,9 +1,24 @@
 // ─── DMP OS Backend API Client ───────────────────────────────────────────────
 // Connects the React frontend to the Express backend running on port 4000.
-// In development, Vite proxies /api/* to http://localhost:4000.
-// In production, the backend serves the built frontend and /api/* is co-located.
+//
+// URL resolution strategy:
+//   1. VITE_API_BASE_URL env var (set at build time for custom deployments)
+//   2. GitHub Pages (wenge130.github.io) → http://localhost:4000/api (local backend)
+//   3. Dev mode (localhost:3000) → /api (Vite proxy forwards to localhost:4000)
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api';
+function resolveApiBase(): string {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  // When served from GitHub Pages, the backend must be running locally
+  if (typeof window !== 'undefined' && window.location.hostname === 'wenge130.github.io') {
+    return 'http://localhost:4000/api';
+  }
+  // Dev mode: Vite proxy handles /api → localhost:4000
+  return '/api';
+}
+
+const API_BASE = resolveApiBase();
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
