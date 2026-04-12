@@ -1,10 +1,23 @@
 import axios from 'axios';
 import 'dotenv/config';
 
-const FINRA_AUTH_URL = process.env.FINRA_AUTH_URL!;
-const FINRA_BASE_URL = process.env.FINRA_BASE_URL!;
-const CLIENT_ID      = process.env.FINRA_CLIENT_ID!;
-const CLIENT_SECRET  = process.env.FINRA_CLIENT_SECRET!;
+const CLIENT_ID     = process.env.FINRA_CLIENT_ID!;
+const CLIENT_SECRET = process.env.FINRA_CLIENT_SECRET!;
+
+// Derive base URLs from FINRA_ENV (qa | prod) — no manual URL config needed
+const isQA = (process.env.FINRA_ENV ?? 'qa').toLowerCase() !== 'prod';
+
+const FINRA_AUTH_URL = process.env.FINRA_AUTH_URL
+  ?? (isQA
+    ? 'https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token'
+    : 'https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token');
+
+const FINRA_BASE_URL = process.env.FINRA_BASE_URL
+  ?? (isQA
+    ? 'https://api.finra.org'
+    : 'https://api.finra.org');
+
+console.log(`[FINRA] Using ${isQA ? 'QA' : 'Production'} environment: ${FINRA_BASE_URL}`);
 
 interface TokenCache {
   token: string;
