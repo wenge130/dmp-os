@@ -1,6 +1,5 @@
-import cron from 'node-cron';
 import { nanoid } from 'nanoid';
-import { fetchRecentNotifications, fetchRulebookEntry } from './finra.service.js';
+import { fetchRecentNotifications } from './finra.service.js';
 import { summarizeRegulatoryNotice } from './gapAnalysis.service.js';
 import { supabase } from '../db/supabase.js';
 
@@ -15,12 +14,29 @@ const RULE_TO_WSP_MAP: Record<string, string> = {
   '2010': 'wsp-001', // General Standards & Ethics
 };
 
+// Poll interval: 30 min in dev, 6 hours in production
+const POLL_INTERVAL_MS =
+  process.env.NODE_ENV === 'production'
+    ? 6 * 60 * 60 * 1000   // 6 hours
+    : 30 * 60 * 1000;       // 30 minutes
+
+let isPolling = false; // guard against overlapping polls
+
 /**
  * Poll the FINRA Notification API for new rulebook updates,
  * create FINRA alerts in the database, and log the results.
+ *
+ * Uses setInterval (not node-cron) so it is immune to Mac sleep/wake
+ * "missed execution" warnings — the interval simply resets after each wake.
  */
 export async function pollFINRANotifications(): Promise<void> {
-  console.log('[PollSched] Running FINRA notification poll...');
+  if (isPolling) {
+    console.log('[PollSched] Previous poll still running — skipping this tick');
+    return;
+  }
+
+  isPolling = true;
+  console.log(`[PollSched] Running FINRA notification poll... (${new Date().toLocaleTimeString()})`);
 
   try {
     const notifications = await fetchRecentNotifications();
@@ -33,7 +49,7 @@ export async function pollFINRANotifications(): Promise<void> {
 
       if (!ruleNumber) continue;
 
-      // Check if we already have this alert (dedup by rule + received_at date)
+      // Dedup: skip if we already have an alert for this rule in the last 7 days
       const { data: existing } = await supabase
         .from('finra_alerts')
         .select('id')
@@ -72,6 +88,8 @@ export async function pollFINRANotifications(): Promise<void> {
     }
   } catch (err: any) {
     console.error('[PollSched] FINRA poll failed:', err.message);
+  } finally {
+    isPolling = false;
   }
 }
 
@@ -89,18 +107,20 @@ function determineSeverity(ruleNumber: string, ruleTitle: string): 'High' | 'Med
 }
 
 /**
- * Start the polling scheduler.
- * Runs every 6 hours in production; every 30 minutes in development.
+ * Start the polling scheduler using setInterval.
+ *
+ * Unlike node-cron, setInterval does NOT fire missed ticks when the process
+ * is suspended (e.g. Mac sleep) — it simply waits the full interval from
+ * the moment the process resumes. This eliminates the "missed execution" warnings.
  */
 export function startPollScheduler(): void {
-  const schedule = process.env.NODE_ENV === 'production' ? '0 */6 * * *' : '*/30 * * * *';
+  const intervalLabel = process.env.NODE_ENV === 'production' ? '6 hours' : '30 minutes';
 
-  cron.schedule(schedule, async () => {
-    await pollFINRANotifications();
-  });
+  // Schedule recurring polls
+  setInterval(pollFINRANotifications, POLL_INTERVAL_MS);
 
-  console.log(`[PollSched] Scheduler started — polling FINRA every ${process.env.NODE_ENV === 'production' ? '6 hours' : '30 minutes'}`);
+  console.log(`[PollSched] Scheduler started — polling FINRA every ${intervalLabel}`);
 
-  // Run once immediately on startup
-  setTimeout(pollFINRANotifications, 5000);
+  // Run once immediately on startup (after 5s to let the server fully initialize)
+  setTimeout(pollFINRANotifications, 5_000);
 }
