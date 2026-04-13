@@ -68,7 +68,17 @@ export const wspApi = {
 
 // ─── FINRA ────────────────────────────────────────────────────────────────────
 
+export interface FINRAHealthStatus {
+  connected: boolean;
+  backend: boolean;
+  rulebook: boolean;
+  notification: boolean;
+  registration: boolean;
+  lastSync: string;
+  error?: string | null;
+}
+
 export const finraApi = {
-  getHealth: () => request<{ connected: boolean; error?: string }>('/finra/health'),
+  getHealth: () => request<FINRAHealthStatus>('/finra/health'),
   pollNow: () => request<{ polled: boolean; new_alerts: number }>('/finra/poll', { method: 'POST' }),
 };

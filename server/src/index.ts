@@ -14,6 +14,8 @@ app.use(cors({
     process.env.CLIENT_URL ?? 'http://localhost:3000',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    // Allow GitHub Pages to call the local backend
+    'https://wenge130.github.io',
   ],
   credentials: true,
 }));

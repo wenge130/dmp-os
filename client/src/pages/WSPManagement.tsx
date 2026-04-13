@@ -207,13 +207,14 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── View 1: WSP Library Dashboard ───────────────────────────────────────────
 
-function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis, liveManuals, liveAlerts, backendOnline }: {
+function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis, liveManuals, liveAlerts, backendOnline, finraHealth }: {
   onOpenEditor: (id: string) => void;
   onOpenAttestation: () => void;
   onOpenGapAnalysis: () => void;
   liveManuals?: SubManual[];
   liveAlerts?: FinraAlert[];
   backendOnline?: boolean | null;
+  finraHealth?: { backend: boolean; rulebook: boolean; notification: boolean; registration: boolean; lastSync: string; } | null;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"All" | "Current" | "Needs Review" | "Overdue">("All");
@@ -264,38 +265,56 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis, li
       </div>
 
       {/* FINRA Feed Status Bar */}
-      <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-muted/20">
-        <div className="flex items-center gap-1.5">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-          </span>
-          <Radio className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground">FINRA Regulatory Feed</span>
-          <span className="text-xs text-muted-foreground">· Live · Last sync 2 min ago</span>
-        </div>
-        <div className="flex items-center gap-3 ml-auto text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full inline-block ${backendOnline === true ? 'bg-blue-500' : backendOnline === false ? 'bg-gray-400' : 'bg-amber-400'}`} aria-label={backendOnline === true ? 'Online' : 'Connecting'}></span>
-            Rulebook API
-          </span>
-          <span className="flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full inline-block ${backendOnline === true ? 'bg-blue-500' : 'bg-gray-400'}`} aria-label="Online"></span>
-            Notification API
-          </span>
-          <span className="flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full inline-block ${backendOnline === true ? 'bg-blue-500' : 'bg-gray-400'}`} aria-label="Online"></span>
-            Backend API
-          </span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span>Registration API</span>
-          {displayAlerts.length > 0 && (
-            <span className="ml-2 flex items-center gap-1 text-orange-600 font-semibold" role="alert">
-              <AlertTriangle className="h-3 w-3" />
-              {displayAlerts.length} new alert{displayAlerts.length > 1 ? "s" : ""} require WSP updates
-            </span>
-          )}
-        </div>
-      </div>
+      {(() => {
+        const apiDot = (connected: boolean | undefined | null, loading: boolean) =>
+          loading ? 'bg-amber-400' : connected ? 'bg-blue-500' : 'bg-gray-400';
+        const isLoading = finraHealth === null && backendOnline === null;
+        const lastSyncLabel = finraHealth
+          ? (() => {
+              const diff = Math.round((Date.now() - new Date(finraHealth.lastSync).getTime()) / 1000);
+              if (diff < 60) return `${diff}s ago`;
+              if (diff < 3600) return `${Math.round(diff / 60)} min ago`;
+              return new Date(finraHealth.lastSync).toLocaleTimeString();
+            })()
+          : 'Connecting...';
+        return (
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-muted/20">
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${backendOnline ? 'bg-blue-400' : 'bg-gray-400'}`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${backendOnline ? 'bg-blue-500' : 'bg-gray-400'}`}></span>
+              </span>
+              <Radio className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium text-foreground">FINRA Regulatory Feed</span>
+              <span className="text-xs text-muted-foreground">· {backendOnline ? 'Live' : backendOnline === false ? 'Offline' : 'Connecting'} · Last sync {lastSyncLabel}</span>
+            </div>
+            <div className="flex items-center gap-3 ml-auto text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1" title={finraHealth?.rulebook ? 'Connected' : 'Not entitled — request finraRulebook dataset access'}>
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${apiDot(finraHealth?.rulebook, isLoading)}`} aria-label={finraHealth?.rulebook ? 'Connected' : 'Not connected'}></span>
+                Rulebook API
+              </span>
+              <span className="flex items-center gap-1" title={finraHealth?.notification ? 'Connected' : 'Checking...'}>
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${apiDot(finraHealth?.notification, isLoading)}`} aria-label={finraHealth?.notification ? 'Connected' : 'Not connected'}></span>
+                Notification API
+              </span>
+              <span className="flex items-center gap-1" title={finraHealth?.backend ? 'Connected — OAuth token active' : 'Not connected'}>
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${apiDot(finraHealth?.backend, isLoading)}`} aria-label={finraHealth?.backend ? 'Connected' : 'Not connected'}></span>
+                Backend API
+              </span>
+              <span className="flex items-center gap-1" title={finraHealth?.registration ? 'Connected' : 'Not entitled — request registration dataset access'}>
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${apiDot(finraHealth?.registration, isLoading)}`} aria-label={finraHealth?.registration ? 'Connected' : 'Not connected'}></span>
+                Registration API
+              </span>
+              {displayAlerts.length > 0 && (
+                <span className="ml-2 flex items-center gap-1 text-orange-600 font-semibold" role="alert">
+                  <AlertTriangle className="h-3 w-3" />
+                  {displayAlerts.length} new alert{displayAlerts.length > 1 ? 's' : ''} require WSP updates
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1081,6 +1100,9 @@ export default function WSPManagement() {
   const [liveAttestations, setLiveAttestations] = useState<any[]>([]);
   const [liveGaps, setLiveGaps] = useState<any[]>([]);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+  const [finraHealth, setFinraHealth] = useState<{
+    backend: boolean; rulebook: boolean; notification: boolean; registration: boolean; lastSync: string;
+  } | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -1101,7 +1123,28 @@ export default function WSPManagement() {
     }
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  const fetchFinraHealth = useCallback(async () => {
+    try {
+      const h = await finraApi.getHealth();
+      setFinraHealth({
+        backend: h.backend,
+        rulebook: h.rulebook,
+        notification: h.notification,
+        registration: h.registration,
+        lastSync: h.lastSync,
+      });
+    } catch {
+      setFinraHealth({ backend: false, rulebook: false, notification: false, registration: false, lastSync: new Date().toISOString() });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+    fetchFinraHealth();
+    // Refresh FINRA health every 5 minutes
+    const interval = setInterval(fetchFinraHealth, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [fetchAll, fetchFinraHealth]);
 
   const openEditor = (id: string) => {
     setEditorManualId(id);
@@ -1161,6 +1204,7 @@ export default function WSPManagement() {
       liveManuals={displayManuals}
       liveAlerts={displayAlerts}
       backendOnline={backendOnline}
+      finraHealth={finraHealth}
     />
   );
 }
