@@ -186,12 +186,11 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
             <Button 
               size="sm" 
               onClick={handleSend}
-              disabled={(!query.trim() && selectedSources.length === 0) || isProcessing}
               style={{ imageRendering: 'auto', transform: 'translateZ(0)' }}
               className={`h-8 px-4 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                 (query.trim() || selectedSources.length > 0) && !isProcessing
                   ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm' 
-                  : 'bg-muted text-muted-foreground cursor-not-allowed opacity-60'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
             >
               {isProcessing ? (
