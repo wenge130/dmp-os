@@ -463,7 +463,7 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis, li
 
 // ─── View 2: WSP Editor ───────────────────────────────────────────────────────
 
-function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => void }) {
+function WSPEditorView({ manualId, onBack, liveAlerts }: { manualId: string; onBack: () => void; liveAlerts?: FinraAlert[] }) {
   const manual = subManuals.find(m => m.id === manualId) || subManuals[0];
   const [activeSection, setActiveSection] = useState("1.1");
   const [showHistory, setShowHistory] = useState(false);
@@ -471,7 +471,9 @@ function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => v
   const [saving, setSaving] = useState(false);
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
 
-  const activeAlerts = finraAlerts.filter(
+  // Use live alerts if available, fall back to mock data
+  const allAlerts = (liveAlerts && liveAlerts.length > 0) ? liveAlerts : finraAlerts;
+  const activeAlerts = allAlerts.filter(
     a => a.manualId === manualId && !dismissedAlerts.includes(a.id)
   );
 
@@ -533,39 +535,69 @@ function WSPEditorView({ manualId, onBack }: { manualId: string; onBack: () => v
       <div className="flex-1 flex flex-col min-w-0">
         {/* FINRA Change Notification Banner */}
         {activeAlerts.length > 0 && (
-          <div className="border-b border-orange-200 bg-orange-50/80 shrink-0" role="alert" aria-label="FINRA regulatory alerts">
+          <div className="border-b-2 border-orange-300 bg-orange-50 shrink-0" role="alert" aria-label="FINRA regulatory alerts">
             {activeAlerts.map(alert => (
-              <div key={alert.id} className="px-4 py-3 flex items-start gap-3">
-                <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                  </span>
-                  <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <div key={alert.id} className="px-5 py-4">
+                {/* Header row */}
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
+                    </span>
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold text-orange-800">{alert.rule}</span>
+                      <StatusBadge status={alert.severity} />
+                      <span className="text-[10px] text-orange-500 ml-auto">via {alert.source} · {alert.receivedAt}</span>
+                    </div>
+                    <p className="text-sm font-semibold text-orange-700 mt-1">{alert.summary}</p>
+                  </div>
+                  <button
+                    onClick={() => setDismissedAlerts(d => [...d, alert.id])}
+                    className="shrink-0 p-1 text-orange-400 hover:text-orange-600 transition-colors rounded hover:bg-orange-100"
+                    aria-label="Dismiss alert"
+                  >
+                    <XCircle className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-orange-700">{alert.rule}</span>
-                    <StatusBadge status={alert.severity} />
-                    <span className="text-[10px] text-orange-500">via {alert.source} · {alert.receivedAt}</span>
+
+                {/* What Changed panel */}
+                <div className="mt-3 ml-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {/* Rule Update Detail */}
+                  <div className="md:col-span-2 rounded-md border border-orange-200 bg-white/70 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-orange-500 mb-1.5 flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" /> What Changed
+                    </p>
+                    <p className="text-xs text-gray-700 leading-relaxed">{alert.detail}</p>
                   </div>
-                  <p className="text-xs text-orange-700 mt-0.5 font-medium">{alert.summary}</p>
-                  <p className="text-xs text-orange-600/80 mt-1 leading-relaxed">{alert.detail}</p>
-                  <p className="text-[10px] text-orange-500 mt-1 font-medium">Affected: {alert.affectedSection}</p>
-                  <div className="flex gap-2 mt-2">
-                    <button className="px-2.5 py-1 bg-orange-600 text-white rounded text-[10px] font-semibold hover:bg-orange-700 transition-colors flex items-center gap-1">
-                      <Edit2 className="h-2.5 w-2.5" /> Update WSP Now
-                    </button>
-                    <button className="px-2.5 py-1 bg-white border border-orange-200 text-orange-600 rounded text-[10px] font-medium hover:bg-orange-50 transition-colors flex items-center gap-1">
-                      <ExternalLink className="h-2.5 w-2.5" /> View Full Rule
-                    </button>
-                    <button
-                      onClick={() => setDismissedAlerts(d => [...d, alert.id])}
-                      className="px-2.5 py-1 text-[10px] text-orange-400 hover:text-orange-600 transition-colors ml-auto flex items-center gap-1"
-                    >
-                      <XCircle className="h-3 w-3" /> Dismiss
-                    </button>
+                  {/* Affected Section + Action */}
+                  <div className="rounded-md border border-orange-200 bg-white/70 p-3 flex flex-col gap-2">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-orange-500 mb-1 flex items-center gap-1">
+                        <FileText className="h-3 w-3" /> Affected Section
+                      </p>
+                      <p className="text-xs font-medium text-gray-800">{alert.affectedSection || "Review all sections"}</p>
+                    </div>
+                    <div className="border-t border-orange-100 pt-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-orange-500 mb-1 flex items-center gap-1">
+                        <Zap className="h-3 w-3" /> Required Action
+                      </p>
+                      <p className="text-xs text-gray-700">Update this WSP section to reflect the regulatory change before the effective date.</p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-2 mt-3 ml-8">
+                  <button className="px-3 py-1.5 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 transition-colors flex items-center gap-1.5">
+                    <Edit2 className="h-3 w-3" /> Update WSP Now
+                  </button>
+                  <button className="px-3 py-1.5 bg-white border border-orange-200 text-orange-600 rounded text-xs font-medium hover:bg-orange-50 transition-colors flex items-center gap-1.5">
+                    <ExternalLink className="h-3 w-3" /> View Full Rule on FINRA.org
+                  </button>
                 </div>
               </div>
             ))}
@@ -1187,7 +1219,7 @@ export default function WSPManagement() {
     : gapFindings;
 
   if (view === "editor") {
-    return <WSPEditorView manualId={editorManualId} onBack={() => setView("library")} />;
+    return <WSPEditorView manualId={editorManualId} onBack={() => setView("library")} liveAlerts={displayAlerts} />;
   }
   if (view === "attestation") {
     return <AttestationCenterView onBack={() => setView("library")} liveAttestations={displayAttestations} />;
