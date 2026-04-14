@@ -136,11 +136,11 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
 
         {/* Bottom Toolbar */}
         <div className="flex items-center justify-between px-3 py-2 border-t border-border/50 bg-secondary/20">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 min-w-0 flex-1">
             {/* Files and Sources Dropdown */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md px-2 gap-1.5">
+                <Button variant="ghost" size="sm" className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md px-2 gap-1.5 shrink-0">
                   <Plus className="w-3.5 h-3.5" />
                   Files and sources
                 </Button>
@@ -173,7 +173,7 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground rounded-md px-2 gap-1.5"
+              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground rounded-md px-2 gap-1.5 shrink-0"
               onClick={handleSend}
             >
               <Zap className="w-3.5 h-3.5 text-blue-600" />
@@ -182,24 +182,28 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 ml-2">
             <Button 
               size="sm" 
               onClick={handleSend}
               disabled={(!query.trim() && selectedSources.length === 0) || isProcessing}
-              className={`h-8 px-4 rounded-md text-xs font-medium transition-all ${
+              style={{ imageRendering: 'auto', transform: 'translateZ(0)' }}
+              className={`h-8 px-4 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                 (query.trim() || selectedSources.length > 0) && !isProcessing
-                  ? 'bg-foreground text-background hover:bg-foreground/90' 
-                  : 'bg-secondary text-muted-foreground cursor-not-allowed'
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm' 
+                  : 'bg-muted text-muted-foreground cursor-not-allowed opacity-60'
               }`}
             >
               {isProcessing ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
+                <span className="flex items-center gap-2">
+                  <span className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
                   Processing...
-                </div>
+                </span>
               ) : (
-                "Ask DMP"
+                <span className="flex items-center gap-1.5">
+                  <Send className="w-3 h-3" />
+                  Ask DMP
+                </span>
               )}
             </Button>
           </div>
