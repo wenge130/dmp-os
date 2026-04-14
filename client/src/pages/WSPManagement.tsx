@@ -257,7 +257,7 @@ function WSPLibraryView({ onOpenEditor, onOpenAttestation, onOpenGapAnalysis, li
             <UserCheck className="h-4 w-4" />
             Attestation Center
           </Button>
-          <Button size="sm" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+          <Button size="sm" variant="default" className="gap-2">
             <Plus className="h-4 w-4" />
             New Sub-Manual
           </Button>
@@ -830,7 +830,7 @@ function AttestationCenterView({ onBack, liveAttestations }: { onBack: () => voi
         <Button variant="outline" size="sm" className="gap-2">
           <Download className="h-4 w-4" /> Export Report
         </Button>
-        <Button size="sm" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+        <Button size="sm" variant="default" className="gap-2">
           <Plus className="h-4 w-4" /> Assign Attestation
         </Button>
       </div>
@@ -1020,7 +1020,7 @@ function GapAnalysisView({ onBack, liveGaps, onRefresh }: { onBack: () => void; 
         <Button variant="outline" size="sm" className="gap-2">
           <Download className="h-4 w-4" /> Export as PDF
         </Button>
-        <Button size="sm" className="gap-2 bg-foreground text-background hover:bg-foreground/90" onClick={handleRun} disabled={running}>
+        <Button size="sm" variant="default" className="gap-2" onClick={handleRun} disabled={running}>
           <RefreshCw className={`h-4 w-4 ${running ? "animate-spin" : ""}`} />
           {running ? "Analyzing..." : "Re-run Analysis"}
         </Button>

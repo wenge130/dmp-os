@@ -122,11 +122,12 @@ export const CATReportingModule: React.FC = () => {
                         Repaired & Re-submitted
                       </Badge>
                     ) : (
-                      <Button 
-                        onClick={() => handleRepair(rej.id)} 
+                      <Button
+                        onClick={() => handleRepair(rej.id)}
                         disabled={repairing === rej.id}
-                        size="sm" 
-                        className="gap-2 bg-foreground text-background hover:bg-foreground/90 h-8"
+                        size="sm"
+                        variant="default"
+                        className="gap-2 h-8"
                       >
                         {repairing === rej.id ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Bug className="h-3 w-3" />}
                         AI Repair

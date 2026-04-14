@@ -136,13 +136,13 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
 
         {/* Bottom Toolbar */}
         <div className="flex items-center justify-between px-3 py-2 border-t border-border/50 bg-secondary/20">
-          <div className="flex items-center gap-1 min-w-0 flex-1">
+          <div className="flex items-center gap-1 flex-1 min-w-0">
             {/* Files and Sources Dropdown */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md px-2 gap-1.5 shrink-0">
-                  <Plus className="w-3.5 h-3.5" />
-                  Files and sources
+                <Button variant="ghost" size="sm" className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md px-2 gap-1.5 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="truncate">Files and sources</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-64 p-2 max-h-[400px] overflow-y-auto" sideOffset={8}>
@@ -168,41 +168,35 @@ export function ChatInput({ query, setQuery, onSubmit, placeholder = "Ask DMP an
               </PopoverContent>
             </Popover>
 
-            <div className="h-3 w-px bg-border/50 mx-1"></div>
+            <div className="h-3 w-px bg-border/50 mx-1 flex-shrink-0"></div>
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground rounded-md px-2 gap-1.5 shrink-0"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground rounded-md px-2 gap-1.5 whitespace-nowrap"
               onClick={handleSend}
             >
-              <Zap className="w-3.5 h-3.5 text-blue-600" />
-              Analyze
+              <Zap className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+              <span className="truncate">Analyze</span>
             </Button>
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center gap-2 shrink-0 ml-2">
-            <Button 
-              size="sm" 
+          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+            <Button
+              size="sm"
               onClick={handleSend}
-              style={{ imageRendering: 'auto', transform: 'translateZ(0)' }}
-              className={`h-8 px-4 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                (query.trim() || selectedSources.length > 0) && !isProcessing
-                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm' 
-                  : 'bg-muted text-muted-foreground cursor-not-allowed'
-              }`}
+              disabled={(!query.trim() && selectedSources.length === 0) || isProcessing}
+              variant={(query.trim() || selectedSources.length > 0) && !isProcessing ? "default" : "ghost"}
+              className="h-8 text-xs font-medium rounded-md px-3 gap-1.5 whitespace-nowrap"
             >
               {isProcessing ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                <>
+                  <div className="h-3 w-3 border-2 border-current opacity-30 border-t-current rounded-full animate-spin" />
                   Processing...
-                </span>
+                </>
               ) : (
-                <span className="flex items-center gap-1.5">
-                  <Send className="w-3 h-3" />
-                  Ask DMP
-                </span>
+                "Ask DMP"
               )}
             </Button>
           </div>
