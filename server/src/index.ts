@@ -48,7 +48,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🚀 DMP OS Backend running on http://localhost:${PORT}`);
   console.log(`   Health: http://localhost:${PORT}/api/health`);
   console.log(`   WSP API: http://localhost:${PORT}/api/wsp`);
@@ -56,6 +56,17 @@ app.listen(PORT, () => {
 
   // Start FINRA polling scheduler
   startPollScheduler();
+});
+
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n❌  Port ${PORT} is already in use.`);
+    console.error(`   Kill the existing process and retry:`);
+    console.error(`   lsof -ti :${PORT} | xargs kill -9\n`);
+    process.exit(1);
+  } else {
+    throw err;
+  }
 });
 
 export default app;
