@@ -23,6 +23,7 @@ import { DataFeeds } from "./components/DataFeeds";
 import ComplianceAnalyzer from "./components/ComplianceAnalyzer";
 import OperationalCascadeView from "./components/OperationalCascadeView";
 import DigitalLedgerView from "./components/DigitalLedgerView";
+import PDTLifecycle from "./components/PDTLifecycle";
 
 function Router() {
   return (
@@ -45,6 +46,7 @@ function Router() {
       <Route path={"/compliance-analyzer"} component={ComplianceAnalyzer} />
       <Route path={"/operational-cascade"} component={OperationalCascadeView} />
       <Route path={"/ledger"} component={DigitalLedgerView} />
+      <Route path={"/pdt-lifecycle"} component={PDTLifecycle} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -18,7 +18,8 @@ import {
   Layers,
   BarChart,
   BrainCircuit,
-  Workflow
+  Workflow,
+  GitBranch
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -101,6 +102,7 @@ export default function Sidebar() {
           <p className="px-3 text-[10px] font-bold text-muted-foreground mb-2 uppercase tracking-widest">Regulatory & Compliance</p>
           <NavItem href="/compliance-analyzer" icon={BrainCircuit} label="Compliance Analyzer" active={isActive("/compliance-analyzer")} />
           <NavItem href="/wsp" icon={ShieldCheck} label="WSP Management" active={isActive("/wsp")} />
+          <NavItem href="/pdt-lifecycle" icon={GitBranch} label="Rule Lifecycle Tracker" active={isActive("/pdt-lifecycle")} />
           <NavItem href="/reporting" icon={FileCheck} label="Regulatory Reporting" active={isActive("/reporting")} />
         </div>
 
