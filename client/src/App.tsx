@@ -24,6 +24,12 @@ import ComplianceAnalyzer from "./components/ComplianceAnalyzer";
 import OperationalCascadeView from "./components/OperationalCascadeView";
 import DigitalLedgerView from "./components/DigitalLedgerView";
 import PDTLifecycle from "./components/PDTLifecycle";
+import { SiebertDashboard } from "./components/SiebertDashboard";
+import { SiebertPipeline } from "./components/SiebertPipeline";
+import { SiebertRecon } from "./components/SiebertRecon";
+import { SiebertBorrow } from "./components/SiebertBorrow";
+import { SiebertBreaks } from "./components/SiebertBreaks";
+import { SiebertAudit } from "./components/SiebertAudit";
 
 function Router() {
   return (
@@ -47,6 +53,12 @@ function Router() {
       <Route path={"/operational-cascade"} component={OperationalCascadeView} />
       <Route path={"/ledger"} component={DigitalLedgerView} />
       <Route path={"/pdt-lifecycle"} component={PDTLifecycle} />
+      <Route path={"/siebert"} component={SiebertDashboard} />
+      <Route path={"/siebert-pipeline"} component={SiebertPipeline} />
+      <Route path={"/siebert-recon"} component={SiebertRecon} />
+      <Route path={"/siebert-borrow"} component={SiebertBorrow} />
+      <Route path={"/siebert-breaks"} component={SiebertBreaks} />
+      <Route path={"/siebert-audit"} component={SiebertAudit} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

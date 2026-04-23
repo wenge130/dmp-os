@@ -66,7 +66,7 @@ export async function fetchRulebookEntry(ruleNumber: string): Promise<any> {
     {
       limit: 10,
       offset: 0,
-      fields: ['ruleNumber', 'ruleTitle', 'ruleText', 'effectiveDate', 'noticeNumber'],
+      fields: ['ruleNumber', 'ruleTitle', 'ruleTextAscii', 'ruleTextHtml', 'effectiveStartDate', 'effectiveEndDate', 'summaryTopics', 'detailedTopics'],
       domainFilters: [{ fieldName: 'ruleNumber', values: [ruleNumber] }],
     },
     {
@@ -111,7 +111,7 @@ export async function fetchWSPRelevantRules(): Promise<any[]> {
     {
       limit: 50,
       offset: 0,
-      fields: ['ruleNumber', 'ruleTitle', 'ruleText', 'effectiveDate', 'noticeNumber'],
+      fields: ['ruleNumber', 'ruleTitle', 'ruleTextAscii', 'ruleTextHtml', 'effectiveStartDate', 'effectiveEndDate', 'rulebookHierarchy', 'summaryTopics', 'detailedTopics'],
       domainFilters: [{ fieldName: 'ruleNumber', values: relevantRules }],
     },
     {

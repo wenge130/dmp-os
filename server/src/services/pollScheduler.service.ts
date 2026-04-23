@@ -1,7 +1,8 @@
 import { nanoid } from 'nanoid';
-import { fetchRecentNotifications } from './finra.service.js';
+import { fetchRecentNotifications, fetchWSPRelevantRules } from './finra.service.js';
 import { summarizeRegulatoryNotice } from './gapAnalysis.service.js';
 import { supabase } from '../db/supabase.js';
+import { archiveToStorJ } from './storjFinraArchive.service.js';
 
 // Map FINRA rule numbers to the most relevant WSP manual IDs
 const RULE_TO_WSP_MAP: Record<string, string> = {
@@ -41,6 +42,22 @@ export async function pollFINRANotifications(): Promise<void> {
   try {
     const notifications = await fetchRecentNotifications();
     console.log(`[PollSched] Received ${notifications.length} notifications from FINRA`);
+
+    // ── Archive raw FINRA payload to StorJ immediately, before any processing ──
+    try {
+      await archiveToStorJ('notifications', notifications);
+    } catch (archiveErr: any) {
+      // Archive failure must never block the main alert pipeline
+      console.error('[PollSched] StorJ archive failed for notifications:', archiveErr.message);
+    }
+
+    // ── Also archive the full WSP-relevant rulebook snapshot on every poll ──
+    try {
+      const rules = await fetchWSPRelevantRules();
+      await archiveToStorJ('wsp-rules', rules);
+    } catch (archiveErr: any) {
+      console.error('[PollSched] StorJ archive failed for wsp-rules:', archiveErr.message);
+    }
 
     for (const notification of notifications) {
       const ruleNumber: string = notification.ruleNumber ?? notification.rule_number ?? '';

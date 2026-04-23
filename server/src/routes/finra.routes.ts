@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
-import { fetchRulebookEntry, fetchWSPRelevantRules, getFINRAToken } from '../services/finra.service.js';
+import { fetchRulebookEntry, fetchWSPRelevantRules, getFINRAToken, fetchRecentNotifications } from '../services/finra.service.js';
+import { archiveToStorJ } from '../services/storjFinraArchive.service.js';
 
 const router = Router();
 const FINRA_BASE_URL = process.env.FINRA_BASE_URL ?? 'https://api.finra.org';
@@ -79,7 +80,7 @@ router.post('/poll', async (_req: Request, res: Response) => {
  */
 router.get('/rules/:ruleNumber', async (req: Request, res: Response) => {
   try {
-    const data = await fetchRulebookEntry(req.params.ruleNumber);
+    const data = await fetchRulebookEntry(String(req.params.ruleNumber));
     return res.json(data);
   } catch (err: any) {
     return res.status(502).json({ error: err.message });
@@ -97,6 +98,39 @@ router.get('/rules', async (_req: Request, res: Response) => {
   } catch (err: any) {
     return res.status(502).json({ error: err.message });
   }
+});
+
+/**
+ * POST /api/finra/archive-to-storj
+ * On-demand: fetch all FINRA data types and archive them to StorJ immediately.
+ * Useful for backfills, testing, or manual triggers outside the poll schedule.
+ */
+router.post('/archive-to-storj', async (_req: Request, res: Response) => {
+  const results: Record<string, any> = {};
+  const errors:  Record<string, string> = {};
+
+  // 1. Notifications
+  try {
+    const notifications = await fetchRecentNotifications();
+    results.notifications = await archiveToStorJ('notifications', notifications);
+  } catch (err: any) {
+    errors.notifications = err.message;
+  }
+
+  // 2. WSP-Relevant Rulebook Rules
+  try {
+    const rules = await fetchWSPRelevantRules();
+    results['wsp-rules'] = await archiveToStorJ('wsp-rules', rules);
+  } catch (err: any) {
+    errors['wsp-rules'] = err.message;
+  }
+
+  const hasErrors = Object.keys(errors).length > 0;
+  return res.status(hasErrors ? 207 : 200).json({
+    success: !hasErrors,
+    archived: results,
+    errors: hasErrors ? errors : undefined,
+  });
 });
 
 export default router;
